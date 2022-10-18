@@ -22,15 +22,21 @@
 **/
 
 object "Simple" {
+    // constructor
     code {
+        // deploy the contract
         datacopy(0, dataoffset("runtime"), datasize("runtime"))
         return (0, datasize("runtime"))
     }
 
+    // block of code that will be executed when the contract is called
     object "runtime" {
         code {
             mstore(0x00, 2)
             return (0x00, 0x20)
         }
-    }
+
+        // storing data in contract bytecode
+        data "Message" "Lorem Ipsum dolor"
+    }g
 }
