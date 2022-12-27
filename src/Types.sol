@@ -32,7 +32,7 @@ contract YulTypes {
             // we cannot assign directly a value to string type
             // this is a non-sense, because we try to assign the value "hello" to the pointer
 
-            // as yul works with 32-bytes word, we can assign value larger than 32 bytes
+            // as yul works with 32-bytes word, we can't assign value larger than 32 bytes
             myString := "hello"
         }
 
