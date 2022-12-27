@@ -36,15 +36,15 @@ contract YulStorageBasic {
     function writeToE(uint16 newE) external {
         assembly {
             // newE = 0x00000000000000000000000000000000000000000000000000000000000000a
-            let c := sload(E.slot)
-            // c    = 0x000100080000000000000000000000060000000000000000000000000000004
+            let currentVal := sload(E.slot)
+            // currentVal = 0x000100080000000000000000000000060000000000000000000000000000004
 
             let clearedE := and(
-                c,
+                currentVal,
                 0xffff0000ffffffffffffffffffffffffffffffffffffffffffffffffffffff
             )
             // mask         = 0xffff0000ffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            // c            = 0x000100080000000000000000000000060000000000000000000000000000004
+            // currentVal   = 0x000100080000000000000000000000060000000000000000000000000000004
             // clearedE     = 0x000100000000000000000000000000060000000000000000000000000000004
             //           These bits °°°° have been set to 0
 
@@ -55,7 +55,7 @@ contract YulStorageBasic {
             // shiftedNewE  = 0x0000000a0000000000000000000000000000000000000000000000000000000
             // clearedE     = 0x000100000000000000000000000000060000000000000000000000000000004
             // newVal       = 0x0001000a0000000000000000000000060000000000000000000000000000004
-            //                This bit ° have been set to 0
+            //           These bits °°°° have been apply in clearedE value
 
             sstore(E.slot, newVal)
         }
