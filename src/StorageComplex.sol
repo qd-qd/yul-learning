@@ -65,7 +65,7 @@ contract YulStorageComplex {
             slot := bigArray.slot
         }
 
-        // then we encode it and keccak the value returned (FOR DYNAMIC ARRAY !)
+        // then we encode it and keccak the value returned (FOR DYNAMIC ARRAY!)
         bytes32 location = keccak256(abi.encode(slot));
 
         // finally we load the value from the addition of the location and the index
@@ -77,54 +77,54 @@ contract YulStorageComplex {
     function getMapping(uint256 key) external view returns (uint256 value) {
         uint256 slot;
 
-        // first we get the slot of the non-fixed array
+        // first we get the slot of the mapping
         assembly {
             slot := myMapping.slot
         }
 
         // then we encode the key and the slot casted in the uint256
-        // type using keccak
+        // type using keccak256
         bytes32 location = keccak256(abi.encode(key, uint256(slot)));
 
-        // finally we just load the location
+        // finally we just load the value at the correct location
         assembly {
             value := sload(location)
         }
     }
 
     function getNestedMapping(
-        uint256 x, // the first value in the mapping (2)
-        uint256 y // the second value in the mapping (4)
+        uint256 keyA, // the first value in the mapping (2)
+        uint256 keyB // the second value in the mapping (4)
     ) external view returns (uint256 value) {
         uint256 slot;
 
-        // first we get the slot of the mapping
+        // first we get the slot of the nested mapping
         assembly {
             slot := nestedMapping.slot
         }
 
         /*  
-            We try to load the location of the value nestedMapping[2][4]
-            - We start by access the value of nestedMapping[2] by encoding
-            the value of x (2) with the .
-            - Then we access the value of nestedMapping[2][4] by encoding
-            the output of the first step with y (4).
-            - Finally we keccak the value returned by the second step
+            We want to read a value from a nested mapping.
+            The process is similar than the one we used to read
+            value from a tradition mapping, except the location
+            of the first key must be encoded then hashed with
+            the second key to order to have the location of the
+            value of the second key.
         */
-        bytes32 location = keccak256(
-            abi.encode(y, keccak256(abi.encode(x, uint256(slot))))
-        );
+        
+        bytes32 locationKeyA = keccak256(abi.encode(keyA, uint256(slot)));
+        bytes32 locationKeyB = keccak256(abi.encode(keyB, locationKeyA));
 
         // finally we just load the location
         assembly {
-            value := sload(location)
+            value := sload(locationKeyB)
         }
     }
 
     // FIXME: uint => (string => uint) mapping
     function getNestedMapping(
-        uint256 x, // the first value in the mapping (1)
-        string calldata y // the second value in the mapping ('toto')
+        uint256 keyA, // the first value in the mapping (1)
+        string calldata keyB // the second value in the mapping ('toto')
     ) external view returns (uint256 value) {
         uint256 slot;
 
@@ -136,13 +136,13 @@ contract YulStorageComplex {
         /*  
             We try to load the location of the value nestedMappingString[1]['toto']
             - We start by access the value of nestedMappingString[1] by encoding
-            the value of x (2) with the .
+            the value of keyA (2) with the .
             - Then we access the value of nestedMappingString[1]['toto'] by encoding
-            the output of the first step with y ('toto').
+            the output of the first step with keyB ('toto').
             - Finally we keccak the value returned by the second step
         */
         bytes32 location = keccak256(
-            abi.encode(y, keccak256(abi.encode(x, uint256(slot))))
+            abi.encode(keyB, keccak256(abi.encode(keyA, uint256(slot))))
         );
 
         // finally we just load the location
